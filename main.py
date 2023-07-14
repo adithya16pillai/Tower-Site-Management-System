@@ -22,7 +22,6 @@ def get_owner_id(username):
     else:
         return 1
 
-
 # Function to add a new tower record
 def tower_add():
     tower_id = input("Enter tower ID: ")
@@ -37,8 +36,6 @@ def tower_add():
     cursor.execute(query, values)
     db.commit()
     print("Tower record added successfully!")
-
-
 
 # Function to update a tower record based on tower ID and username
 def update_tower(tower_id, username):
@@ -157,7 +154,6 @@ def search_tower():
             print(row)
     else:
         print("Tower record(s) not found.")
-
 
 
 

@@ -11,10 +11,18 @@ db = mysql.connector.connect(
 # Create a cursor object to execute SQL queries
 cursor = db.cursor()
 
-
 # Create a dictionary to serve as the query cache
 query_cache = {}
 
+username= input("Enter Username")
+password = input("Enter password")
+userid = get_owner_id(username)
+
+if userid != 1:
+    pass
+else: 
+    print("INVALID USERNAME")
+    exit()
 
 # Function to execute a query and store the result in the cache
 def execute_query(query, values=None):
@@ -102,7 +110,7 @@ def update_tower(tower_id, username):
         print("You do not have permission to update the tower record.")
 
 # Function to delete a tower record based on tower ID
-def tower_delete(tower_id):
+def tower_delete(tower_id, username):
     query = "SELECT operator_name FROM TowerINFO WHERE tower_id = %s"
     values = (tower_id,)
     result = execute_query(query, values)  # Use the execute_query function to execute the query
@@ -365,7 +373,7 @@ def update_site(site_id, userid):
 
 
 # Function to delete the owner_id value in a site record based on site ID and userid
-def delete_site(site_id, username):
+def delete_site(site_id, userid):
     # Check if the owner_id matches the userid
     query = "SELECT owner_id FROM SiteINFO WHERE site_id = %s"
     values = (site_id,)
@@ -430,7 +438,7 @@ def owner_add():
 
 # Function to update the OwnerINFO table based on owner ID and userid
 def update_owner(owner_id, userid):
-    # Check if the owner_name matches the userid
+    # Check if the owner_id matches the userid
     query = "SELECT owner_id FROM OwnerINFO WHERE owner_id = %s"
     values = (owner_id,)
     result = execute_query(query, values)  # Use the execute_query function to execute the query
@@ -446,12 +454,12 @@ def update_owner(owner_id, userid):
 
 
 # Function to delete the contact number in an owner record based on owner ID and userid
-def delete_owner(owner_id, userid):
-    # Check if the owner_name matches the userid
+def delete_owner(owner_id, username):
+    # Check if the owner_name matches the username
     query = "SELECT owner_name FROM OwnerINFO WHERE owner_id = %s"
     values = (owner_id,)
     result = execute_query(query, values)  # Use the execute_query function to execute the query
-    if result and result[0] == userid:
+    if result and result[0] == username:
         query = "UPDATE OwnerINFO SET owner_contact = NULL WHERE owner_id = %s"
         values = (owner_id,)
         result = execute_query(query, values)  # Use the execute_query function to execute the query
@@ -581,10 +589,151 @@ def search_maintenance():
         print("Maintenance record(s) not found.")
 
 
+# Function to display the main menu
+def display_menu():
+    print("Welcome to the Database Management System!")
+    print("Select a function to execute:")
+    print("1. Add Record")
+    print("2. Update Record")
+    print("3. Delete Record")
+    print("4. Search Record")
+    print("0. Exit")
+
+# Function to get the user's choice
+def get_choice():
+    while True:
+        choice = input("Enter your choice: ")
+        if choice.isdigit():
+            choice = int(choice)
+            if choice in range(5):
+                return choice
+        print("Invalid choice. Please try again.")
+
+# Function to execute the selected function
+def execute_function(choice):
+    if choice == 1:
+        add_record()
+    elif choice == 2:
+        update_record()
+    elif choice == 3:
+        delete_record()
+    elif choice == 4:
+        search_record()
+    elif choice == 0:
+        exit_program()
+    else:
+        print("Invalid choice.")
+
+# Function to handle adding a record
+def add_record():
+    print("Select where to add the record")
+    print("1. Tower INFO")
+    print("2. Antenna INFO")
+    print("3. Site INFO")
+    print("4. Owner INFO")
+    print("5. Maintaince INFO")
+    table_choice = get_choice()
+    
+    if table_choice == 1:
+        tower_add()
+    elif table_choice == 2:
+        antenna_add()
+    elif table_choice == 3:
+        site_add()
+    elif table_choice == 4:
+        owner_add()
+    elif table_choice == 5:
+        maintainance_add()
+    else:
+        print("Invalid choice.")
 
 
+# Function to handle updating a record
+def update_record():
+    print("Select a table to update a record in:")
+    print("1. TowerINFO")
+    print("2. AntennaINFO")
+    print("3. SiteINFO")
+    print("4. OwnerINFO")
+    print("5. MaintenanceINFO")
+    table_choice = get_choice()
+    
+    if table_choice == 1:
+        tower_id = input("Enter Tower ID: ")
+        update_tower(tower_id, username)
+    elif table_choice == 2:
+        antenna_id = input("Enter Antenna ID: ")
+        update_antenna(antenna_id, userid)
+    elif table_choice == 3:
+        print("Only site name can be updated")
+        site_id = input("Enter Site ID: ")
+        update_site(site_id, userid)
+    elif table_choice == 4:
+        owner_id = input("Enter Owner ID: ")
+        update_owner(owner_id, userid)
+    elif table_choice == 5:
+        tower_id = input("Enter Tower ID: ")
+        update_maintainance(tower_id, username)
+    else:
+        print("Invalid choice.")
 
+# Function to handle deleting a record
+def delete_record():
+    print("Select a table to delete a record from:")
+    print("1. TowerINFO")
+    print("2. AntennaINFO")
+    print("3. SiteINFO")
+    print("4. OwnerINFO")
+    print("5. MaintenanceINFO")
+    table_choice = get_choice()
+    
+    if table_choice == 1:
+        tower_id = input("Enter Tower ID: ")
+        tower_delete(tower_id,username)
+    elif table_choice == 2:
+        antenna_id = input("Enter Antenna ID: ")
+        delete_antenna(antenna_id, userid)
+    elif table_choice == 3:
+        site_id = input("Enter Site ID: ")
+        delete_site(site_id, userid)
+    elif table_choice == 4:
+        print("Can only delete owner contact")
+        owner_id = input("Enter Owner ID: ")
+        delete_owner(owner_id, username)
+    elif table_choice == 5:
+        tower_id = input("Enter Tower ID: ")
+        maintenance_delete(tower_id)
+    else:
+        print("Invalid choice.")
 
+# Function to handle searching for a record
+def search_record():
+    print("Select a table to search for a record in:")
+    print("1. TowerINFO")
+    print("2. AntennaINFO")
+    print("3. SiteINFO")
+    print("4. OwnerINFO")
+    print("5. MaintenanceINFO")
+    table_choice = get_choice()
+    
+    if table_choice == 1:
+        search_tower()
+    elif table_choice == 2:
+        search_antenna()
+    elif table_choice == 3:
+        search_site()
+    elif table_choice == 4:
+        search_owner()
+    elif table_choice == 5:
+        search_maintenance()
+    else:
+        print("Invalid choice.")
+
+# Function to exit the program
+def exit_program():
+    print("Exiting the program...")
+    db.close()
+    sys.exit()
 
 
 username= input("Enter Username")
@@ -597,37 +746,12 @@ else:
     print("INVALID USERNAME")
     exit()
 
+while True: 
+    display_menu()
+    choice = get_choice()
+    execute_function(choice)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Close the database connection
-def close_connection():
     cursor.close()
     db.close()
 
-
-# Example usage
-update_tower(1, 50.5)  # Update tower with ID 1 to a new height of 50.5
-delete_tower(2)  # Delete tower with ID 2
-search_tower(3)  # Search for tower with ID 3
-
-# Close the database connection
 close_connection()

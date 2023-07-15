@@ -14,16 +14,24 @@ cursor = db.cursor()
 # Create a dictionary to serve as the query cache
 query_cache = {}
 
-username= input("Enter Username")
-password = input("Enter password")
-userid = get_owner_id(username)
-
-if userid != 1:
-    pass
-else: 
-    print("INVALID USERNAME")
-    exit()
-
+# Function to authenticate the username and password
+def authenticate_user(username, password):
+    # Retrieve owner_id from OwnerINFO table for the given username
+    query = "SELECT owner_id FROM OwnerINFO WHERE owner_name = %s"
+    values = (username,)
+    cursor.execute(query, values)
+    result = cursor.fetchone()
+    if result:
+        owner_id = result[0]
+        # Retrieve password from Credentials table for the retrieved owner_id
+        query = "SELECT password FROM Credentials WHERE owner_id = %s"
+        values = (owner_id,)
+        cursor.execute(query, values)
+        result = cursor.fetchone()
+        if result and result[0] == password:
+            return owner_id
+    return None
+    
 # Function to execute a query and store the result in the cache
 def execute_query(query, values=None):
     cache_key = hash(query + str(values))
@@ -737,14 +745,24 @@ def exit_program():
 
 
 username= input("Enter Username")
-password = input("Enter password")
-userid = get_owner_id(username)
+max_attempts=3
+attempts = 0
+authenticated = False
+while attempts < max_attempts:
+    password = input("Enter Password")
+    userid = authenticate_user(username, password)
+    if userid is not None:
+        authenticated = True
+        print("Authentication successful!")
+        break
+    else: 
+        attempts +=1
+        print("Wrong password. Please try again.")
 
-if userid != 1:
-    pass
-else: 
-    print("INVALID USERNAME")
-    exit()
+if not authenticated:
+    print("Maximum login attempts exceeded. Exiting...")
+    exit_program()
+
 
 while True: 
     display_menu()

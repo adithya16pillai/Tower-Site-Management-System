@@ -762,3 +762,5 @@ cursor.close()
 db.close()
 
 close_connection()
+
+

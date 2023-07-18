@@ -1,0 +1,48 @@
+<!-- search_owner.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Owner</title>
+</head>
+<body>
+    <h1>Search Owner</h1>
+    <form method="POST" action="/search_owner">
+        <label for="choice">Select an option:</label>
+        <select id="choice" name="choice">
+            <option value="1">Search by Owner ID</option>
+            <option value="2">Search by Column Value</option>
+        </select>
+        <br>
+        <br>
+        <div id="owner_id_input">
+            <label for="owner_id">Owner ID:</label>
+            <input type="text" id="owner_id" name="owner_id">
+        </div>
+        <div id="column_input">
+            <label for="column">Column Name:</label>
+            <input type="text" id="column" name="column">
+            <br>
+            <label for="value">Value:</label>
+            <input type="text" id="value" name="value">
+        </div>
+        <br>
+        <input type="submit" value="Search">
+    </form>
+    <script>
+        // Show/hide the input fields based on the selected option
+        const choiceSelect = document.getElementById('choice');
+        const ownerIdInput = document.getElementById('owner_id_input');
+        const columnInput = document.getElementById('column_input');
+
+        choiceSelect.addEventListener('change', function () {
+            if (choiceSelect.value === '1') {
+                ownerIdInput.style.display = 'block';
+                columnInput.style.display = 'none';
+            } else if (choiceSelect.value === '2') {
+                ownerIdInput.style.display = 'none';
+                columnInput.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

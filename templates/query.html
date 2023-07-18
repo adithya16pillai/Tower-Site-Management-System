@@ -1,0 +1,30 @@
+<!-- query.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Execute Query</title>
+</head>
+<body>
+    <h1>Execute Query</h1>
+    <form method="POST" action="{{ url_for('execute_query') }}">
+        <label for="query">Query:</label>
+        <textarea id="query" name="query" required></textarea><br>
+        <input type="submit" value="Execute">
+    </form>
+    {% if result %}
+        <h2>Result:</h2>
+        <table>
+            <tr>
+                {% for column in result.keys() %}
+                    <th>{{ column }}</th>
+                {% endfor %}
+            </tr>
+            <tr>
+                {% for value in result.values() %}
+                    <td>{{ value }}</td>
+                {% endfor %}
+            </tr>
+        </table>
+    {% endif %}
+</body>
+</html>

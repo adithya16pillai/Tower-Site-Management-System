@@ -1,0 +1,19 @@
+<!-- get_owner_id.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Get Owner ID</title>
+</head>
+<body>
+    <h1>Get Owner ID</h1>
+    <form method="POST" action="{{ url_for('get_owner_id') }}">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username">
+        <br>
+        <input type="submit" value="Get Owner ID">
+    </form>
+    {% if owner_id %}
+        <p>Owner ID: {{ owner_id }}</p>
+    {% endif %}
+</body>
+</html>

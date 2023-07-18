@@ -1,0 +1,31 @@
+<!-- update_antenna.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Antenna Record</title>
+</head>
+<body>
+    <h1>Update Antenna Record</h1>
+    <form method="POST" action="/update_antenna">
+        <label for="antenna_id">Antenna ID:</label>
+        <input type="text" id="antenna_id" name="antenna_id">
+        <br>
+        <label for="userid">User ID:</label>
+        <input type="text" id="userid" name="userid">
+        <br>
+        <label for="column_choice">Select a column to update:</label>
+        <select id="column_choice" name="column_choice">
+            <option value="antenna_size">Antenna Size</option>
+            <option value="bandwidth">Bandwidth</option>
+            <option value="network_generation">Network Generation</option>
+            <option value="antenna_height">Antenna Height</option>
+            <option value="antenna_azimuth">Antenna Azimuth</option>
+        </select>
+        <br>
+        <label for="new_value">Enter new value:</label>
+        <input type="text" id="new_value" name="new_value">
+        <br>
+        <input type="submit" value="Update Antenna Record">
+    </form>
+</body>
+</html>

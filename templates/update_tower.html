@@ -1,0 +1,30 @@
+<!-- update_tower.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Tower Record</title>
+</head>
+<body>
+    <h1>Update Tower Record</h1>
+    <form method="POST" action="/update_tower">
+        <label for="tower_id">Tower ID:</label>
+        <input type="text" id="tower_id" name="tower_id">
+        <br>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username">
+        <br>
+        <label for="column_choice">Select a column to update:</label>
+        <select id="column_choice" name="column_choice">
+            <option value="tower_height">Tower Height</option>
+            <option value="date_of_installation">Date of Installation</option>
+            <option value="operator_name">Operator Name</option>
+            <option value="antenna_band">Antenna Band</option>
+        </select>
+        <br>
+        <label for="new_value">New Value:</label>
+        <input type="text" id="new_value" name="new_value">
+        <br>
+        <input type="submit" value="Update Tower Record">
+    </form>
+</body>
+</html>

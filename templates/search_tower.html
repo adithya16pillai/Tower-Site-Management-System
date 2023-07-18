@@ -1,0 +1,46 @@
+<!-- search_tower.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Tower</title>
+</head>
+<body>
+    <h1>Search Tower</h1>
+    <form method="POST" action="/search_tower">
+        <label for="search_type">Search Type:</label>
+        <select id="search_type" name="search_type">
+            <option value="tower_id">Search by Tower ID</option>
+            <option value="column_value">Search by Column Value</option>
+        </select>
+        <br>
+        <div id="tower_id_div">
+            <label for="tower_id">Tower ID:</label>
+            <input type="text" id="tower_id" name="tower_id">
+        </div>
+        <div id="column_value_div" style="display: none;">
+            <label for="column_name">Column Name:</label>
+            <input type="text" id="column_name" name="column_name">
+            <br>
+            <label for="column_value">Value:</label>
+            <input type="text" id="column_value" name="column_value">
+        </div>
+        <br>
+        <input type="submit" value="Search Tower">
+    </form>
+    
+    <script>
+        // Show/hide input fields based on the selected search type
+        document.getElementById("search_type").addEventListener("change", function() {
+            var towerIdDiv = document.getElementById("tower_id_div");
+            var columnValueDiv = document.getElementById("column_value_div");
+            if (this.value === "tower_id") {
+                towerIdDiv.style.display = "block";
+                columnValueDiv.style.display = "none";
+            } else if (this.value === "column_value") {
+                towerIdDiv.style.display = "none";
+                columnValueDiv.style.display = "block";
+            }
+        });
+    </script>
+</body>
+</html>

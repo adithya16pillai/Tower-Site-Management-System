@@ -1,0 +1,14 @@
+<!-- clear_cache.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear Query Cache</title>
+</head>
+<body>
+    <h1>Clear Query Cache</h1>
+    <form method="POST" action="{{ url_for('clear_query_cache') }}">
+        <input type="submit" value="Clear Cache">
+    </form>
+    <p>{{ message }}</p>
+</body>
+</html>

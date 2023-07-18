@@ -1,0 +1,26 @@
+<!-- maintenance_add.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Maintenance Record</title>
+</head>
+<body>
+    <h1>Add Maintenance Record</h1>
+    <form method="POST" action="/maintenance_add">
+        <label for="tower_id">Tower ID:</label>
+        <input type="text" id="tower_id" name="tower_id">
+        <br>
+        <label for="last_maintained">Last Maintenance Date:</label>
+        <input type="text" id="last_maintained" name="last_maintained">
+        <br>
+        <label for="next_maintenance">Next Maintenance Date:</label>
+        <input type="text" id="next_maintenance" name="next_maintenance">
+        <br>
+        <label for="maintenance_type">Maintenance Type:</label>
+        <input type="text" id="maintenance_type" name="maintenance_type">
+        <br>
+        <br>
+        <input type="submit" value="Add Maintenance Record">
+    </form>
+</body>
+</html>

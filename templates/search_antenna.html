@@ -1,0 +1,48 @@
+<!-- search_antenna.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Antenna Record</title>
+</head>
+<body>
+    <h1>Search Antenna Record</h1>
+    <form method="POST" action="/search_antenna">
+        <label for="search_option">Select an option:</label>
+        <select id="search_option" name="search_option">
+            <option value="by_antenna_id">Search by Antenna ID</option>
+            <option value="by_column_value">Search by Column Value</option>
+        </select>
+        <br>
+        <div id="antenna_id_div">
+            <label for="antenna_id">Antenna ID:</label>
+            <input type="text" id="antenna_id" name="antenna_id">
+            <br>
+        </div>
+        <div id="column_value_div">
+            <label for="column">Column Name:</label>
+            <input type="text" id="column" name="column">
+            <br>
+            <label for="value">Value:</label>
+            <input type="text" id="value" name="value">
+            <br>
+        </div>
+        <input type="submit" value="Search">
+    </form>
+    <script>
+        // JavaScript code to show/hide the input fields based on the selected search option
+        var searchOption = document.getElementById('search_option');
+        var antennaIdDiv = document.getElementById('antenna_id_div');
+        var columnValueDiv = document.getElementById('column_value_div');
+
+        searchOption.addEventListener('change', function() {
+            if (searchOption.value === 'by_antenna_id') {
+                antennaIdDiv.style.display = 'block';
+                columnValueDiv.style.display = 'none';
+            } else if (searchOption.value === 'by_column_value') {
+                antennaIdDiv.style.display = 'none';
+                columnValueDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

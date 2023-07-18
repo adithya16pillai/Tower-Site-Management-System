@@ -1,0 +1,28 @@
+<!-- tower_add.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Tower Record</title>
+</head>
+<body>
+    <h1>Add Tower Record</h1>
+    <form method="POST" action="/tower_add">
+        <label for="tower_id">Tower ID:</label>
+        <input type="text" id="tower_id" name="tower_id">
+        <br>
+        <label for="tower_height">Tower Height:</label>
+        <input type="text" id="tower_height" name="tower_height">
+        <br>
+        <label for="date_of_installation">Date of Installation (YYYY-MM-DD):</label>
+        <input type="text" id="date_of_installation" name="date_of_installation">
+        <br>
+        <label for="operator_name">Operator Name:</label>
+        <input type="text" id="operator_name" name="operator_name">
+        <br>
+        <label for="antenna_band">Antenna Band:</label>
+        <input type="text" id="antenna_band" name="antenna_band">
+        <br>
+        <input type="submit" value="Add Tower Record">
+    </form>
+</body>
+</html>

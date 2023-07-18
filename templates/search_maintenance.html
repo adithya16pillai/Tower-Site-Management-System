@@ -1,0 +1,46 @@
+<!-- search_maintenance.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Maintenance Record</title>
+</head>
+<body>
+    <h1>Search Maintenance Record</h1>
+    <form method="POST" action="/search_maintenance">
+        <label for="choice">Select an option:</label>
+        <select id="choice" name="choice">
+            <option value="1">Search by Tower ID</option>
+            <option value="2">Search by Column Value</option>
+        </select>
+        <br>
+        <br>
+        <div id="tower_id_div">
+            <label for="tower_id">Tower ID:</label>
+            <input type="text" id="tower_id" name="tower_id">
+        </div>
+        <div id="column_value_div" style="display: none;">
+            <label for="column_name">Column Name:</label>
+            <input type="text" id="column_name" name="column_name">
+            <br>
+            <br>
+            <label for="column_value">Value:</label>
+            <input type="text" id="column_value" name="column_value">
+        </div>
+        <br>
+        <br>
+        <input type="submit" value="Search Maintenance Record">
+    </form>
+    <script>
+        document.getElementById("choice").addEventListener("change", function() {
+            var choice = document.getElementById("choice").value;
+            if (choice === "1") {
+                document.getElementById("tower_id_div").style.display = "block";
+                document.getElementById("column_value_div").style.display = "none";
+            } else if (choice === "2") {
+                document.getElementById("tower_id_div").style.display = "none";
+                document.getElementById("column_value_div").style.display = "block";
+            }
+        });
+    </script>
+</body>
+</html>

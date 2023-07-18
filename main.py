@@ -1,10 +1,10 @@
 import mysql.connector
-
+import sys 
 # Establish the database connection
 db = mysql.connector.connect(
     host="localhost",
-    user="your_username",
-    password="your_password",
+    user="root",
+    password="",
     database="tower_management"
 )
 
@@ -15,7 +15,7 @@ cursor = db.cursor()
 query_cache = {}
 
 # Function to authenticate the username and password
-def authenticate_user(username, password):
+def authenticate_user(db,cursor,username, password):
     # Retrieve owner_id from OwnerINFO table for the given username
     query = "SELECT owner_id FROM OwnerINFO WHERE owner_name = %s"
     values = (username,)
@@ -33,7 +33,7 @@ def authenticate_user(username, password):
     return None
     
 # Function to execute a query and store the result in the cache
-def execute_query(query, values=None):
+def execute_query(db,cursor, query, values=None):
     cache_key = hash(query + str(values))
     if cache_key in query_cache:
         result = query_cache[cache_key]
@@ -51,20 +51,8 @@ def clear_query_cache():
     print("Query cache cleared.")
 
 
-
-# Function to get the owner ID for a given username
-def get_owner_id(username):
-    query = "SELECT owner_id FROM OwnerINFO WHERE owner_name = %s"
-    values = (username,)
-    result = execute_query(query, values)
-    if result:
-        return result[0]
-    else:
-        return 1
-
-
 # Function to add a new tower record
-def tower_add():
+def tower_add(db,cursor):
     tower_id = input("Enter tower ID: ")
     tower_height = input("Enter tower height: ")
     date_of_installation = input("Enter date of installation (YYYY-MM-DD): ")
@@ -74,15 +62,15 @@ def tower_add():
     query = "INSERT INTO TowerINFO (tower_id, tower_height, date_of_installation, operator_name, antenna_band) " \
             "VALUES (%s, %s, %s, %s, %s)"
     values = (tower_id, tower_height, date_of_installation, operator_name, antenna_band)
-    execute_query(query, values)
+    execute_query(db,cursor,query, values)
     db.commit()
     print("Tower record added successfully!")
 
 # Function to update a tower record based on tower ID and username
-def update_tower(tower_id, username):
+def update_tower(db,cursor, tower_id, username):
     query = "SELECT operator_name FROM TowerINFO WHERE tower_id = %s"
     values = (tower_id,)
-    result = execute_query(query, values)
+    result = execute_query(db,cursor,query, values)
     if result and result[0] == username:
         print("Select a column to update:")
         print("1. Tower Height")
@@ -111,17 +99,17 @@ def update_tower(tower_id, username):
             print("Invalid choice. No changes made.")
             return
 
-        execute_query(query, values)
+        execute_query(db,cursor,query, values)
         db.commit()
         print("Tower record updated successfully!")
     else:
         print("You do not have permission to update the tower record.")
 
 # Function to delete a tower record based on tower ID
-def tower_delete(tower_id, username):
+def tower_delete(db,cursor, tower_id, username):
     query = "SELECT operator_name FROM TowerINFO WHERE tower_id = %s"
     values = (tower_id,)
-    result = execute_query(query, values)  # Use the execute_query function to execute the query
+    result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
     if result and result[0] == username:
         print("Select an option:")
         print("1. Delete the whole row")
@@ -131,7 +119,7 @@ def tower_delete(tower_id, username):
         if choice == 1:
             query = "DELETE FROM TowerINFO WHERE tower_id = %s"
             values = (tower_id,)
-            execute_query(query, values)  # Use the execute_query function to execute the query
+            execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
             db.commit()
             print("Tower record deleted successfully!")
         elif choice == 2:
@@ -155,14 +143,15 @@ def tower_delete(tower_id, username):
                 return
 
             values = (tower_id,)
-            execute_query(query, values)  # Use the execute_query function to execute the query
+            execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
             db.commit()
             print("Tower record updated successfully!")
         else:
             print("Invalid choice. No changes made.")
     else:
         print("You do not have permission to update the tower record.")
-def search_tower():
+        
+def search_tower(db,cursor):
     print("Select an option:")
     print("1. Search by Tower ID")
     print("2. Search by Column Value")
@@ -172,13 +161,13 @@ def search_tower():
         tower_id = input("Enter Tower ID: ")
         query = "SELECT * FROM TowerINFO WHERE tower_id = %s"
         values = (tower_id,)
-        result = execute_query(query, values)  # Use the execute_query function to execute the query
+        result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
     elif choice == 2:
         column = input("Enter Column Name: ")
         value = input("Enter Value: ")
         query = "SELECT * FROM TowerINFO WHERE {0} = %s".format(column)
         values = (value,)
-        result = execute_query(query, values)  # Use the execute_query function to execute the query
+        result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
     else:
         print("Invalid choice.")
         return
@@ -200,7 +189,7 @@ def search_tower():
 
 
 # Function to add a new antenna record
-def antenna_add():
+def antenna_add(db,cursor):
     antenna_id = input("Enter antenna ID: ")
     antenna_size = input("Enter antenna size: ")
     bandwidth = input("Enter bandwidth: ")
@@ -211,17 +200,17 @@ def antenna_add():
     query = "INSERT INTO AntennaINFO (antenna_id, antenna_size, bandwidth, network_generation, antenna_height, antenna_azimuth) " \
             "VALUES (%s, %s, %s, %s, %s, %s)"
     values = (antenna_id, antenna_size, bandwidth, network_generation, antenna_height, antenna_azimuth)
-    result = execute_query(query, values)  # Use the execute_query function to execute the query
+    result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
     db.commit()
     print("Antenna record added successfully!")
 
 
 # Function to update an antenna record based on antenna ID and userid
-def update_antenna(antenna_id, userid):
+def update_antenna(db,cursor,antenna_id, userid):
     # Check if the owner_id matches the userid
     query = "SELECT owner_id FROM AntennaINFO WHERE antenna_id = %s"
     values = (antenna_id,)
-    result = execute_query(query, values)  # Use the execute_query function to execute the query
+    result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
     if result and result[0] == userid:
         print("Select a column to update:")
         print("1. Antenna Size")
@@ -255,7 +244,7 @@ def update_antenna(antenna_id, userid):
             print("Invalid choice. No changes made.")
             return
 
-        result = execute_query(query, values)  # Use the execute_query function to execute the query
+        result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
         db.commit()
         print("Antenna record updated successfully!")
     else:
@@ -263,11 +252,11 @@ def update_antenna(antenna_id, userid):
 
 
 # Function to delete an antenna record based on antenna ID and userid
-def delete_antenna(antenna_id, userid):
+def delete_antenna(db,cursor, antenna_id, userid):
     # Check if the owner_id matches the userid
     query = "SELECT owner_id FROM AntennaINFO WHERE antenna_id = %s"
     values = (antenna_id,)
-    result = execute_query(query, values)  # Use the execute_query function to execute the query
+    result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
     if result and result[0] == userid:
         print("Select an option:")
         print("1. Delete the whole row")
@@ -277,7 +266,7 @@ def delete_antenna(antenna_id, userid):
         if choice == 1:
             query = "DELETE FROM AntennaINFO WHERE antenna_id = %s"
             values = (antenna_id,)
-            result = execute_query(query, values)  # Use the execute_query function to execute the query
+            result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
             db.commit()
             print("Antenna record deleted successfully!")
         elif choice == 2:
@@ -304,7 +293,7 @@ def delete_antenna(antenna_id, userid):
                 return
 
             values = (antenna_id,)
-            result = execute_query(query, values)  # Use the execute_query function to execute the query
+            result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
             db.commit()
             print("Antenna record updated successfully!")
         else:
@@ -314,7 +303,7 @@ def delete_antenna(antenna_id, userid):
 
 
 # Function to search for a record in AntennaINFO table
-def search_antenna():
+def search_antenna(db,cursor):
     print("Select an option:")
     print("1. Search by Antenna ID")
     print("2. Search by Column Value")
@@ -324,13 +313,13 @@ def search_antenna():
         antenna_id = input("Enter Antenna ID: ")
         query = "SELECT * FROM AntennaINFO WHERE antenna_id = %s"
         values = (antenna_id,)
-        result = execute_query(query, values)  # Use the execute_query function to execute the query
+        result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
     elif choice == 2:
         column = input("Enter Column Name: ")
         value = input("Enter Value: ")
         query = "SELECT * FROM AntennaINFO WHERE {0} = %s".format(column)
         values = (value,)
-        result = execute_query(query, values)  # Use the execute_query function to execute the query
+        result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
     else:
         print("Invalid choice.")
         return
@@ -347,7 +336,7 @@ def search_antenna():
 
 
 # Function to add a new site record
-def site_add():
+def site_add(db,cursor):
     site_id = input("Enter site ID: ")
     site_name = input("Enter site name: ")
     site_coordinates = input("Enter site coordinates: ")
@@ -358,22 +347,22 @@ def site_add():
     query = "INSERT INTO SiteINFO (site_id, site_name, site_coordinates, site_address, site_zip_code, site_type) " \
             "VALUES (%s, %s, %s, %s, %s, %s)"
     values = (site_id, site_name, site_coordinates, site_address, site_zip_code, site_type)
-    result = execute_query(query, values)  # Use the execute_query function to execute the query
+    result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
     db.commit()
     print("Site record added successfully!")
 
 
 # Function to update the SiteINFO table based on site ID and userid
-def update_site(site_id, userid):
+def update_site(db,cursor, site_id, userid):
     # Check if the owner_id matches the userid
     query = "SELECT owner_id FROM SiteINFO WHERE site_id = %s"
     values = (site_id,)
-    result = execute_query(query, values)  # Use the execute_query function to execute the query
+    result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
     if result and result[0] == userid:
         new_site_name = input("Enter new site name: ")
         query = "UPDATE SiteINFO SET site_name = %s WHERE site_id = %s"
         values = (new_site_name, site_id)
-        result = execute_query(query, values)  # Use the execute_query function to execute the query
+        result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
         db.commit()
         print("Site record updated successfully!")
     else:
@@ -381,15 +370,15 @@ def update_site(site_id, userid):
 
 
 # Function to delete the owner_id value in a site record based on site ID and userid
-def delete_site(site_id, userid):
+def delete_site(db,cursor, site_id, userid):
     # Check if the owner_id matches the userid
     query = "SELECT owner_id FROM SiteINFO WHERE site_id = %s"
     values = (site_id,)
-    result = execute_query(query, values)  # Use the execute_query function to execute the query
+    result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
     if result and result[0] == userid:
         query = "UPDATE SiteINFO SET owner_id = NULL WHERE site_id = %s"
         values = (site_id,)
-        result = execute_query(query, values)  # Use the execute_query function to execute the query
+        result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
         db.commit()
         print("Owner ID value in Site record deleted successfully!")
     else:
@@ -397,7 +386,7 @@ def delete_site(site_id, userid):
 
 
 # Function to search for a record in SiteINFO table
-def search_site():
+def search_site(db,cursor):
     print("Select an option:")
     print("1. Search by Site ID")
     print("2. Search by Column Value")
@@ -407,13 +396,13 @@ def search_site():
         site_id = input("Enter Site ID: ")
         query = "SELECT * FROM SiteINFO WHERE site_id = %s"
         values = (site_id,)
-        result = execute_query(query, values)  # Use the execute_query function to execute the query
+        result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
     elif choice == 2:
         column = input("Enter Column Name: ")
         value = input("Enter Value: ")
         query = "SELECT * FROM SiteINFO WHERE {0} = %s".format(column)
         values = (value,)
-        result = execute_query(query, values)  # Use the execute_query function to execute the query
+        result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
     else:
         print("Invalid choice.")
         return
@@ -429,7 +418,7 @@ def search_site():
 
 
 # Function to add a new owner record
-def owner_add():
+def owner_add(db,cursor):
     owner_id = input("Enter owner ID: ")
     owner_name = input("Enter owner name: ")
     sites_owned = input("Enter number of sites owned: ")
@@ -439,22 +428,22 @@ def owner_add():
     query = "INSERT INTO OwnerINFO (owner_id, owner_name, sites_owned, towers_owned, owner_contact) " \
             "VALUES (%s, %s, %s, %s, %s)"
     values = (owner_id, owner_name, sites_owned, towers_owned, owner_contact)
-    result = execute_query(query, values)  # Use the execute_query function to execute the query
+    result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
     db.commit()
     print("Owner record added successfully!")
 
 
 # Function to update the OwnerINFO table based on owner ID and userid
-def update_owner(owner_id, userid):
+def update_owner(db,cursor,owner_id, userid):
     # Check if the owner_id matches the userid
     query = "SELECT owner_id FROM OwnerINFO WHERE owner_id = %s"
     values = (owner_id,)
-    result = execute_query(query, values)  # Use the execute_query function to execute the query
+    result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
     if result and result[0] == userid:
         new_owner_contact = input("Enter new owner contact number: ")
         query = "UPDATE OwnerINFO SET owner_contact = %s WHERE owner_id = %s"
         values = (new_owner_contact, owner_id)
-        result = execute_query(query, values)  # Use the execute_query function to execute the query
+        result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
         db.commit()
         print("Owner record updated successfully!")
     else:
@@ -462,15 +451,15 @@ def update_owner(owner_id, userid):
 
 
 # Function to delete the contact number in an owner record based on owner ID and userid
-def delete_owner(owner_id, username):
+def delete_owner(db,cursor, owner_id, username):
     # Check if the owner_name matches the username
     query = "SELECT owner_name FROM OwnerINFO WHERE owner_id = %s"
     values = (owner_id,)
-    result = execute_query(query, values)  # Use the execute_query function to execute the query
+    result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
     if result and result[0] == username:
         query = "UPDATE OwnerINFO SET owner_contact = NULL WHERE owner_id = %s"
         values = (owner_id,)
-        result = execute_query(query, values)  # Use the execute_query function to execute the query
+        result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
         db.commit()
         print("Contact number in Owner record deleted successfully!")
     else:
@@ -478,7 +467,7 @@ def delete_owner(owner_id, username):
 
 
 # Function to search for a record in OwnerINFO table
-def search_owner():
+def search_owner(db,cursor):
     print("Select an option:")
     print("1. Search by Owner ID")
     print("2. Search by Column Value")
@@ -488,13 +477,13 @@ def search_owner():
         owner_id = input("Enter Owner ID: ")
         query = "SELECT * FROM OwnerINFO WHERE owner_id = %s"
         values = (owner_id,)
-        result = execute_query(query, values)  # Use the execute_query function to execute the query
+        result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
     elif choice == 2:
         column = input("Enter Column Name: ")
         value = input("Enter Value: ")
         query = "SELECT * FROM OwnerINFO WHERE {0} = %s".format(column)
         values = (value,)
-        result = execute_query(query, values)  # Use the execute_query function to execute the query
+        result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
     else:
         print("Invalid choice.")
         return
@@ -508,26 +497,26 @@ def search_owner():
 
 
 # Function to add a new maintenance record
-def maintenance_add():
+def maintenance_add(db,cursor):
     tower_id = input("Enter tower ID: ")
     last_maintained = input("Enter last maintenance date (YYYY-MM-DD): ")
     next_maintenance = input("Enter next maintenance date (YYYY-MM-DD): ")
     maintenance_type = input("Enter maintenance type: ")
 
-    query = "INSERT INTO MaintainanceINFO (tower_id, last_maintained, next_maintenance, maintainance_type) " \
+    query = "INSERT INTO MaintenanceINFO (tower_id, last_maintained, next_maintenance, maintenance_type) " \
             "VALUES (%s, %s, %s, %s)"
     values = (tower_id, last_maintained, next_maintenance, maintenance_type)
-    result = execute_query(query, values)  # Use the execute_query function to execute the query
+    result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
     db.commit()
     print("Maintenance record added successfully!")
 
 
-# Function to update the MaintainanceINFO table based on tower ID and username
-def update_maintenance(tower_id, username):
+# Function to update the MaintenanceINFO table based on tower ID and username
+def update_maintenance(db,cursor, tower_id, username):
     # Check if the owner_name matches the username
-    query = "SELECT owner_name FROM TowerINFO WHERE tower_id = %s"
+    query = "SELECT operator_name FROM TowerINFO WHERE tower_id = %s"
     values = (tower_id,)
-    result = execute_query(query, values)  # Use the execute_query function to execute the query
+    result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
     if result and result[0] == username:
         print("Select a column to update:")
         print("1. Last Maintained")
@@ -537,21 +526,21 @@ def update_maintenance(tower_id, username):
 
         if choice == 1:
             new_last_maintained = input("Enter new last maintained date (YYYY-MM-DD): ")
-            query = "UPDATE MaintainanceINFO SET last_maintained = %s WHERE tower_id = %s"
+            query = "UPDATE MaintenanceINFO SET last_maintained = %s WHERE tower_id = %s"
             values = (new_last_maintained, tower_id)
         elif choice == 2:
             new_next_maintenance = input("Enter new next maintenance date (YYYY-MM-DD): ")
-            query = "UPDATE MaintainanceINFO SET next_maintenance = %s WHERE tower_id = %s"
+            query = "UPDATE MaintenanceINFO SET next_maintenance = %s WHERE tower_id = %s"
             values = (new_next_maintenance, tower_id)
         elif choice == 3:
             new_maintenance_type = input("Enter new maintenance type: ")
-            query = "UPDATE MaintainanceINFO SET maintenance_type = %s WHERE tower_id = %s"
+            query = "UPDATE MaintenanceINFO SET maintenance_type = %s WHERE tower_id = %s"
             values = (new_maintenance_type, tower_id)
         else:
             print("Invalid choice. No changes made.")
             return
 
-        result = execute_query(query, values)  # Use the execute_query function to execute the query
+        result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
         db.commit()
         print("Maintenance record updated successfully!")
     else:
@@ -559,16 +548,16 @@ def update_maintenance(tower_id, username):
 
 
 # Function to delete a maintenance record based on tower ID
-def maintenance_delete(tower_id):
-    query = "DELETE FROM MaintainanceINFO WHERE tower_id = %s"
+def maintenance_delete(db,cursor, tower_id):
+    query = "DELETE FROM MaintenanceINFO WHERE tower_id = %s"
     values = (tower_id,)
-    result = execute_query(query, values)  # Use the execute_query function to execute the query
+    result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
     db.commit()
     print("Maintenance record deleted successfully!")
 
 
-# Function to search for a record in MaintainanceINFO table
-def search_maintenance():
+# Function to search for a record in MaintenanceINFO table
+def search_maintenance(db,cursor):
     print("Select an option:")
     print("1. Search by Tower ID")
     print("2. Search by Column Value")
@@ -576,15 +565,15 @@ def search_maintenance():
 
     if choice == 1:
         tower_id = input("Enter Tower ID: ")
-        query = "SELECT * FROM MaintainanceINFO WHERE tower_id = %s"
+        query = "SELECT * FROM MaintenanceINFO WHERE tower_id = %s"
         values = (tower_id,)
-        result = execute_query(query, values)  # Use the execute_query function to execute the query
+        result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
     elif choice == 2:
         column = input("Enter Column Name: ")
         value = input("Enter Value: ")
-        query = "SELECT * FROM MaintainanceINFO WHERE {0} = %s".format(column)
+        query = "SELECT * FROM MaintenanceINFO WHERE {0} = %s".format(column)
         values = (value,)
-        result = execute_query(query, values)  # Use the execute_query function to execute the query
+        result = execute_query(db,cursor,query, values)  # Use the execute_query function to execute the query
     else:
         print("Invalid choice.")
         return
@@ -613,27 +602,27 @@ def get_choice():
         choice = input("Enter your choice: ")
         if choice.isdigit():
             choice = int(choice)
-            if choice in range(5):
+            if choice in range(6):
                 return choice
         print("Invalid choice. Please try again.")
 
 # Function to execute the selected function
-def execute_function(choice):
+def execute_function(db,choice,username):
     if choice == 1:
-        add_record()
+        add_record(db,cursor)
     elif choice == 2:
-        update_record()
+        update_record(db,cursor,username)
     elif choice == 3:
-        delete_record()
+        delete_record(db,cursor)
     elif choice == 4:
-        search_record()
+        search_record(db,cursor)
     elif choice == 0:
-        exit_program()
+        exit_program(db)
     else:
         print("Invalid choice.")
 
 # Function to handle adding a record
-def add_record():
+def add_record(db,cursor):
     print("Select where to add the record")
     print("1. Tower INFO")
     print("2. Antenna INFO")
@@ -643,21 +632,21 @@ def add_record():
     table_choice = get_choice()
     
     if table_choice == 1:
-        tower_add()
+        tower_add(db,cursor)
     elif table_choice == 2:
-        antenna_add()
+        antenna_add(db,cursor)
     elif table_choice == 3:
-        site_add()
+        site_add(db,cursor)
     elif table_choice == 4:
-        owner_add()
+        owner_add(db,cursor)
     elif table_choice == 5:
-        maintainance_add()
+        maintenance_add(db,cursor)
     else:
         print("Invalid choice.")
 
 
 # Function to handle updating a record
-def update_record():
+def update_record(db,cursor,username):
     print("Select a table to update a record in:")
     print("1. TowerINFO")
     print("2. AntennaINFO")
@@ -668,25 +657,25 @@ def update_record():
     
     if table_choice == 1:
         tower_id = input("Enter Tower ID: ")
-        update_tower(tower_id, username)
+        update_tower(db,cursor,tower_id, username)
     elif table_choice == 2:
         antenna_id = input("Enter Antenna ID: ")
-        update_antenna(antenna_id, userid)
+        update_antenna(db,cursor,antenna_id, userid)
     elif table_choice == 3:
         print("Only site name can be updated")
         site_id = input("Enter Site ID: ")
-        update_site(site_id, userid)
+        update_site(db,cursor,site_id, userid)
     elif table_choice == 4:
         owner_id = input("Enter Owner ID: ")
-        update_owner(owner_id, userid)
+        update_owner(db,cursor,owner_id, userid)
     elif table_choice == 5:
         tower_id = input("Enter Tower ID: ")
-        update_maintainance(tower_id, username)
+        update_maintenance(db,cursor,tower_id, username)
     else:
         print("Invalid choice.")
 
 # Function to handle deleting a record
-def delete_record():
+def delete_record(db,cursor):
     print("Select a table to delete a record from:")
     print("1. TowerINFO")
     print("2. AntennaINFO")
@@ -697,25 +686,25 @@ def delete_record():
     
     if table_choice == 1:
         tower_id = input("Enter Tower ID: ")
-        tower_delete(tower_id,username)
+        tower_delete(db,cursor,tower_id,username)
     elif table_choice == 2:
         antenna_id = input("Enter Antenna ID: ")
-        delete_antenna(antenna_id, userid)
+        delete_antenna(db,cursor,antenna_id, userid)
     elif table_choice == 3:
         site_id = input("Enter Site ID: ")
-        delete_site(site_id, userid)
+        delete_site(db,cursor,site_id, userid)
     elif table_choice == 4:
         print("Can only delete owner contact")
         owner_id = input("Enter Owner ID: ")
-        delete_owner(owner_id, username)
+        delete_owner(db,cursor,owner_id, username)
     elif table_choice == 5:
         tower_id = input("Enter Tower ID: ")
-        maintenance_delete(tower_id)
+        maintenance_delete(db,cursor, tower_id)
     else:
         print("Invalid choice.")
 
 # Function to handle searching for a record
-def search_record():
+def search_record(db,cursor):
     print("Select a table to search for a record in:")
     print("1. TowerINFO")
     print("2. AntennaINFO")
@@ -725,20 +714,20 @@ def search_record():
     table_choice = get_choice()
     
     if table_choice == 1:
-        search_tower()
+        search_tower(db,cursor)
     elif table_choice == 2:
-        search_antenna()
+        search_antenna(db,cursor)
     elif table_choice == 3:
-        search_site()
+        search_site(db,cursor)
     elif table_choice == 4:
-        search_owner()
+        search_owner(db,cursor)
     elif table_choice == 5:
-        search_maintenance()
+        search_maintenance(db,cursor)
     else:
         print("Invalid choice.")
 
 # Function to exit the program
-def exit_program():
+def exit_program(db):
     print("Exiting the program...")
     db.close()
     sys.exit()
@@ -750,7 +739,7 @@ attempts = 0
 authenticated = False
 while attempts < max_attempts:
     password = input("Enter Password")
-    userid = authenticate_user(username, password)
+    userid = authenticate_user(db,cursor, username, password)
     if userid is not None:
         authenticated = True
         print("Authentication successful!")
@@ -761,15 +750,15 @@ while attempts < max_attempts:
 
 if not authenticated:
     print("Maximum login attempts exceeded. Exiting...")
-    exit_program()
+    exit_program(db)
 
 
 while True: 
     display_menu()
     choice = get_choice()
-    execute_function(choice)
+    execute_function(db,choice,username)
 
-    cursor.close()
-    db.close()
+cursor.close()
+db.close()
 
 close_connection()
